@@ -33,9 +33,9 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-[#1a3d3d] text-white w-64">
+    <div className="flex flex-col h-full bg-[#1a3d3d] text-white w-64 flex-shrink-0">
       {/* Logo */}
-      <div className="p-6 border-b border-white/10">
+      <div className="p-6 border-b border-white/10 flex-shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
             <span className="text-xl font-bold text-[#5eb5b5]">K</span>

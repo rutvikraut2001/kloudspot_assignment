@@ -7,36 +7,36 @@ export function Header() {
   const { user } = useAuth();
 
   return (
-    <div className="bg-white border-b border-gray-200 px-8 py-4">
+    <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex-shrink-0">
       <div className="flex items-center justify-between">
         {/* Title and Location */}
-        <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-semibold text-gray-800">
+        <div className="flex items-center space-x-2 md:space-x-4">
+          <h1 className="text-lg md:text-xl font-semibold text-gray-800">
             Crowd Solutions
           </h1>
-          <div className="flex items-center space-x-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
             <span className="text-sm text-gray-700">📍 Avenue Mall</span>
             <ChevronDown className="w-4 h-4 text-gray-500" />
           </div>
         </div>
 
         {/* Right Side Actions */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 md:space-x-4">
           {/* Date Selector */}
-          <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="hidden md:flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
             <Calendar className="w-4 h-4 text-gray-600" />
             <span className="text-sm text-gray-700">Today</span>
           </button>
 
           {/* Notification Bell */}
-          <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <button className="hidden sm:block relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <div className="w-8 h-8 bg-[#5eb5b5] rounded-full flex items-center justify-center text-white text-sm">
               EN
             </div>
           </button>
 
           {/* Settings Icon */}
-          <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <button className="hidden md:block relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <svg
               className="w-5 h-5 text-gray-600"
               fill="none"
@@ -53,7 +53,7 @@ export function Header() {
           </button>
 
           {/* Bell Icon */}
-          <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <button className="hidden md:block relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <svg
               className="w-5 h-5 text-gray-600"
               fill="none"
