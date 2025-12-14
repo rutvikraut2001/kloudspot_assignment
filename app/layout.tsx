@@ -1,22 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "react-hot-toast";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const roboto = Roboto({
+  weight: ["300", "400", "500", "700"],
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Crowd Management System | Kloudspot",
-  description: "Real-time crowd analytics and monitoring platform for venues, malls, and public spaces",
-  keywords: "crowd management, analytics, occupancy tracking, footfall, demographics",
+  title: "Crowd Solutions - kloudspot",
+  description: "Crowd Management System by kloudspot",
 };
 
 export default function RootLayout({
@@ -26,27 +19,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${roboto.className} antialiased`}>
         {children}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: "#fff",
-              color: "#1a202c",
-              border: "1px solid #e5e7eb",
-            },
-            success: {
-              iconTheme: {
-                primary: "#5eb5b5",
-                secondary: "#fff",
-              },
-            },
-          }}
-        />
       </body>
     </html>
   );
