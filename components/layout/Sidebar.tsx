@@ -1,19 +1,21 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { Home, Users, Power, Menu } from 'lucide-react';
-import { useState } from 'react';
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { Home, Users, Power, Menu } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
   {
-    name: 'Overview',
-    href: '/dashboard',
+    name: "Overview",
+    href: "/dashboard",
     icon: Home,
   },
   {
-    name: 'Crowd Entries',
-    href: '/dashboard/entries',
+    name: "Crowd Entries",
+    href: "/dashboard/entries",
     icon: Users,
   },
 ];
@@ -25,7 +27,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
+  const { logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
 
   const handleToggle = () => {
@@ -34,7 +36,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   };
 
   const handleLogout = () => {
-    router.push('/login');
+    logout();
   };
 
   return (
@@ -86,17 +88,25 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       </div>
 
       {/* Logo Header */}
-      <div className={`px-4 py-4 flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} relative z-10`}>
-        {!isCollapsed && (
-          <img
+      <div className="px-4 py-4 flex items-center gap-3 relative z-10">
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            isCollapsed ? 'w-0 opacity-0' : 'w-[120px] opacity-100'
+          }`}
+        >
+          <Image
             src="/kloudspot.png"
             alt="Kloudspot"
-            style={{ width: '120px', height: 'auto', filter: 'brightness(0) invert(1)' }}
+            width={120}
+            height={67}
+            className="brightness-0 invert"
           />
-        )}
+        </div>
         <button
           onClick={handleToggle}
-          className={`text-gray-400 hover:text-white p-1 ${isCollapsed ? '' : 'ml-auto'}`}
+          className={`text-gray-400 hover:text-white p-1 transition-all duration-300 ${
+            isCollapsed ? 'mx-auto' : 'ml-auto'
+          }`}
         >
           <Menu size={20} />
         </button>
@@ -112,15 +122,21 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg transition-colors mb-1 ${
+              className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-300 mb-1 ${
                 isActive
                   ? 'bg-gray-500/40 text-white'
                   : 'text-gray-300 hover:bg-white/5 hover:text-white'
-              }`}
+              } ${isCollapsed ? 'justify-center' : ''}`}
               title={isCollapsed ? item.name : undefined}
             >
-              <Icon size={18} />
-              {!isCollapsed && <span className="text-sm font-medium">{item.name}</span>}
+              <Icon size={18} className="flex-shrink-0" />
+              <span
+                className={`text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
+                  isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+                }`}
+              >
+                {item.name}
+              </span>
             </Link>
           );
         })}
@@ -130,11 +146,19 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       <div className="p-4 relative z-10">
         <button
           onClick={handleLogout}
-          className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2 text-gray-300 hover:text-white transition-colors w-full`}
+          className={`flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white transition-all duration-300 w-full ${
+            isCollapsed ? 'justify-center' : ''
+          }`}
           title={isCollapsed ? 'Logout' : undefined}
         >
-          <Power size={18} />
-          {!isCollapsed && <span className="text-sm">Logout</span>}
+          <Power size={18} className="flex-shrink-0" />
+          <span
+            className={`text-sm whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
+              isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+            }`}
+          >
+            Logout
+          </span>
         </button>
       </div>
     </div>

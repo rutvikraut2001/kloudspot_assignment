@@ -1,18 +1,56 @@
-'use client';
+"use client";
 
-import { MapPin, Bell, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
-
-const locations = [
-  'Avenue Mall',
-  'City Center',
-  'Downtown Plaza',
-  'Metro Station',
-];
+import { MapPin, Bell, ChevronDown, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { getSiteId, getSiteName } from "@/lib/api";
+import { socketService, AlertEvent } from "@/lib/socket";
+import { AlertsPanel } from "@/components/alerts/AlertsPanel";
 
 export function Header() {
-  const [selectedLocation, setSelectedLocation] = useState('Avenue Mall');
+  const { sites, selectedSite, selectSite, isLoadingSites, getSelectedSiteId } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAlertsPanelOpen, setIsAlertsPanelOpen] = useState(false);
+  const [alertCount, setAlertCount] = useState(0);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Listen for alerts and increment counter
+  useEffect(() => {
+    const siteId = getSelectedSiteId();
+
+    const unsubscribe = socketService.onAlert((data: AlertEvent) => {
+      // Only count alerts for current site
+      if (data.siteId === siteId || !siteId) {
+        if (!isAlertsPanelOpen) {
+          setAlertCount((prev) => prev + 1);
+        }
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [getSelectedSiteId, isAlertsPanelOpen]);
+
+  // Clear alert count when panel opens
+  const handleOpenAlertsPanel = () => {
+    setIsAlertsPanelOpen(true);
+    setAlertCount(0);
+  };
+
+  const selectedSiteName = selectedSite ? getSiteName(selectedSite) : "Select Site";
 
   return (
     <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6">
@@ -21,33 +59,60 @@ export function Header() {
         <h1 className="text-base font-semibold text-gray-800">Crowd Solutions</h1>
         <div className="h-6 w-px bg-gray-300"></div>
 
-        {/* Location Dropdown */}
-        <div className="relative">
+        {/* Site Dropdown */}
+        <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md bg-white"
+            disabled={isLoadingSites}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md bg-white disabled:opacity-50 disabled:cursor-not-allowed min-w-[180px]"
           >
-            <MapPin size={16} className="text-gray-500" />
-            <span className="text-sm">{selectedLocation}</span>
-            <ChevronDown size={16} className={`text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            {isLoadingSites ? (
+              <>
+                <Loader2 size={16} className="text-gray-500 animate-spin" />
+                <span className="text-sm">Loading sites...</span>
+              </>
+            ) : (
+              <>
+                <MapPin size={16} className="text-gray-500" />
+                <span className="text-sm truncate">{selectedSiteName}</span>
+                <ChevronDown
+                  size={16}
+                  className={`text-gray-400 transition-transform ml-auto ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </>
+            )}
           </button>
 
-          {isDropdownOpen && (
+          {isDropdownOpen && sites.length > 0 && (
+            <div className="absolute top-full left-0 mt-1 w-full min-w-[220px] bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+              {sites.map((site) => {
+                const siteId = getSiteId(site);
+                const siteName = getSiteName(site);
+                const isSelected = selectedSite && getSiteId(selectedSite) === siteId;
+
+                return (
+                  <button
+                    key={siteId}
+                    onClick={() => {
+                      selectSite(site);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 ${
+                      isSelected ? "bg-gray-100 text-gray-800 font-medium" : "text-gray-600"
+                    }`}
+                  >
+                    {siteName}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {isDropdownOpen && sites.length === 0 && !isLoadingSites && (
             <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
-              {locations.map((location) => (
-                <button
-                  key={location}
-                  onClick={() => {
-                    setSelectedLocation(location);
-                    setIsDropdownOpen(false);
-                  }}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
-                    selectedLocation === location ? 'bg-gray-100 text-gray-800' : 'text-gray-600'
-                  }`}
-                >
-                  {location}
-                </button>
-              ))}
+              <p className="px-4 py-3 text-sm text-gray-500">No sites available</p>
             </div>
           )}
         </div>
@@ -64,13 +129,24 @@ export function Header() {
         </div>
 
         {/* Bell Icon */}
-        <button className="text-gray-400 hover:text-gray-600 relative">
+        <button
+          onClick={handleOpenAlertsPanel}
+          className="text-gray-400 hover:text-gray-600 relative"
+        >
           <Bell size={20} />
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          {alertCount > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full flex items-center justify-center text-[10px] text-white font-semibold px-1">
+              {alertCount > 99 ? "99+" : alertCount}
+            </span>
+          )}
+          {alertCount === 0 && (
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          )}
         </button>
 
         {/* User Avatar */}
         <div className="w-9 h-9 rounded-full bg-gray-200 overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
             alt="User"
@@ -78,6 +154,13 @@ export function Header() {
           />
         </div>
       </div>
+
+      {/* Alerts Panel */}
+      <AlertsPanel
+        isOpen={isAlertsPanelOpen}
+        onClose={() => setIsAlertsPanelOpen(false)}
+        siteId={getSelectedSiteId()}
+      />
     </header>
   );
 }
