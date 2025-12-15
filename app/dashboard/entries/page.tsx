@@ -1,7 +1,7 @@
 'use client';
 
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface CrowdEntry {
   id: number;
@@ -29,17 +29,50 @@ const crowdData: CrowdEntry[] = [
 
 export default function CrowdEntriesPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+  const dateInputRef = useRef<HTMLInputElement>(null);
   const totalPages = 5;
+
+  const formatDisplayDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selected = new Date(dateStr);
+    selected.setHours(0, 0, 0, 0);
+
+    if (selected.getTime() === today.getTime()) {
+      return 'Today';
+    }
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-800">Overview</h2>
-        <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 bg-white">
-          <Calendar size={16} />
-          Today
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => dateInputRef.current?.showPicker()}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 bg-white min-w-[120px]"
+          >
+            <Calendar size={16} />
+            {formatDisplayDate(selectedDate)}
+          </button>
+          <input
+            ref={dateInputRef}
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="absolute inset-0 opacity-0 cursor-pointer"
+          />
+        </div>
       </div>
 
       {/* Table */}

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Users, LogOut, Menu } from 'lucide-react';
+import { Home, Users, Power, Menu } from 'lucide-react';
+import { useState } from 'react';
 
 const menuItems = [
   {
@@ -17,9 +18,20 @@ const menuItems = [
   },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  collapsed?: boolean;
+  onToggle?: () => void;
+}
+
+export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isCollapsed, setIsCollapsed] = useState(collapsed);
+
+  const handleToggle = () => {
+    setIsCollapsed(!isCollapsed);
+    onToggle?.();
+  };
 
   const handleLogout = () => {
     router.push('/login');
@@ -27,7 +39,7 @@ export function Sidebar() {
 
   return (
     <div
-      className="w-[220px] min-h-screen flex flex-col relative overflow-hidden"
+      className={`${isCollapsed ? 'w-[70px]' : 'w-[220px]'} min-h-screen flex flex-col relative overflow-hidden transition-all duration-300`}
       style={{
         background: 'linear-gradient(180deg, #1a3a3a 0%, #0f2828 50%, #0a1f1f 100%)',
       }}
@@ -45,7 +57,6 @@ export function Sidebar() {
               <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.1" />
             </linearGradient>
           </defs>
-          {/* Network lines pattern */}
           <g stroke="url(#lineGradient)" strokeWidth="0.5" fill="none">
             <line x1="0" y1="300" x2="80" y2="200" />
             <line x1="80" y1="200" x2="40" y2="150" />
@@ -61,7 +72,6 @@ export function Sidebar() {
             <line x1="150" y1="180" x2="200" y2="220" />
             <line x1="120" y1="120" x2="100" y2="100" />
           </g>
-          {/* Dots at intersections */}
           <g fill="#2dd4bf" fillOpacity="0.4">
             <circle cx="80" cy="200" r="3" />
             <circle cx="40" cy="150" r="2" />
@@ -76,19 +86,24 @@ export function Sidebar() {
       </div>
 
       {/* Logo Header */}
-      <div className="p-5 flex items-center gap-3 relative z-10">
-        <img
-          src="/kloudspot.png"
-          alt="Kloudspot"
-          className="h-7 w-auto brightness-0 invert"
-        />
-        <button className="ml-auto text-gray-400 hover:text-white">
+      <div className={`px-4 py-4 flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} relative z-10`}>
+        {!isCollapsed && (
+          <img
+            src="/kloudspot.png"
+            alt="Kloudspot"
+            style={{ width: '120px', height: 'auto', filter: 'brightness(0) invert(1)' }}
+          />
+        )}
+        <button
+          onClick={handleToggle}
+          className={`text-gray-400 hover:text-white p-1 ${isCollapsed ? '' : 'ml-auto'}`}
+        >
           <Menu size={20} />
         </button>
       </div>
 
       {/* Menu Items */}
-      <nav className="flex-1 mt-4 px-3 relative z-10">
+      <nav className="flex-1 mt-4 px-2 relative z-10">
         {menuItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
@@ -97,14 +112,15 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors mb-1 ${
+              className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg transition-colors mb-1 ${
                 isActive
-                  ? 'bg-teal-600/80 text-white'
+                  ? 'bg-gray-500/40 text-white'
                   : 'text-gray-300 hover:bg-white/5 hover:text-white'
               }`}
+              title={isCollapsed ? item.name : undefined}
             >
               <Icon size={18} />
-              <span className="text-sm font-medium">{item.name}</span>
+              {!isCollapsed && <span className="text-sm font-medium">{item.name}</span>}
             </Link>
           );
         })}
@@ -114,10 +130,11 @@ export function Sidebar() {
       <div className="p-4 relative z-10">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-2 text-gray-300 hover:text-white transition-colors w-full"
+          className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2 text-gray-300 hover:text-white transition-colors w-full`}
+          title={isCollapsed ? 'Logout' : undefined}
         >
-          <LogOut size={18} />
-          <span className="text-sm">Logout</span>
+          <Power size={18} />
+          {!isCollapsed && <span className="text-sm">Logout</span>}
         </button>
       </div>
     </div>
