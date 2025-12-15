@@ -1,24 +1,41 @@
 "use client";
 
-import { MapPin, Bell, ChevronDown, Loader2 } from "lucide-react";
+import { MapPin, Bell, ChevronDown, Loader2, Menu } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getSiteId, getSiteName } from "@/lib/api";
 import { socketService, AlertEvent } from "@/lib/socket";
 import { AlertsPanel } from "@/components/alerts/AlertsPanel";
 
-export function Header() {
+const languages = [
+  { code: "en", name: "English", flag: "En" },
+  { code: "es", name: "Spanish", flag: "Es" },
+  { code: "fr", name: "French", flag: "Fr" },
+  { code: "de", name: "German", flag: "De" },
+];
+
+interface HeaderProps {
+  onMobileMenuClick?: () => void;
+}
+
+export function Header({ onMobileMenuClick }: HeaderProps) {
   const { sites, selectedSite, selectSite, isLoadingSites, getSelectedSiteId } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isAlertsPanelOpen, setIsAlertsPanelOpen] = useState(false);
   const [alertCount, setAlertCount] = useState(0);
+  const [selectedLang, setSelectedLang] = useState(languages[0]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const langDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
+      }
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+        setIsLangDropdownOpen(false);
       }
     }
 
@@ -53,18 +70,26 @@ export function Header() {
   const selectedSiteName = selectedSite ? getSiteName(selectedSite) : "Select Site";
 
   return (
-    <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+    <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-6">
       {/* Left Side */}
-      <div className="flex items-center gap-6">
-        <h1 className="text-base font-semibold text-gray-800">Crowd Solutions</h1>
-        <div className="h-6 w-px bg-gray-300"></div>
+      <div className="flex items-center gap-2 sm:gap-6">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={onMobileMenuClick}
+          className="lg:hidden p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md"
+        >
+          <Menu size={20} />
+        </button>
+
+        <h1 className="text-sm sm:text-base font-semibold text-gray-800 hidden sm:block">Crowd Solutions</h1>
+        <div className="h-6 w-px bg-gray-300 hidden sm:block"></div>
 
         {/* Site Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             disabled={isLoadingSites}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md bg-white disabled:opacity-50 disabled:cursor-not-allowed min-w-[180px]"
+            className="flex items-center gap-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md bg-white disabled:opacity-50 disabled:cursor-not-allowed min-w-[120px] sm:min-w-[180px]"
           >
             {isLoadingSites ? (
               <>
@@ -119,13 +144,48 @@ export function Header() {
       </div>
 
       {/* Right Side */}
-      <div className="flex items-center gap-4">
-        {/* Language Badge */}
-        <div className="flex items-center gap-1">
-          <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white text-xs font-semibold">
-            En
-          </div>
-          <span className="text-gray-400 text-sm">ε</span>
+      <div className="flex items-center gap-2 sm:gap-4">
+        {/* Language Selector - hidden on small mobile */}
+        <div className="relative hidden sm:block" ref={langDropdownRef}>
+          <button
+            onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+            className="flex items-center gap-2 px-2 sm:px-3 py-1.5 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors"
+          >
+            <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-white text-[10px] font-semibold">
+              {selectedLang.flag}
+            </div>
+            <span className="text-sm text-gray-700 hidden md:inline">{selectedLang.name}</span>
+            <ChevronDown
+              size={14}
+              className={`text-gray-400 transition-transform ${
+                isLangDropdownOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {isLangDropdownOpen && (
+            <div className="absolute top-full right-0 mt-1 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => {
+                    setSelectedLang(lang);
+                    setIsLangDropdownOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${
+                    selectedLang.code === lang.code
+                      ? "bg-gray-100 text-gray-800 font-medium"
+                      : "text-gray-600"
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-white text-[10px] font-semibold">
+                    {lang.flag}
+                  </div>
+                  <span>{lang.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Bell Icon */}

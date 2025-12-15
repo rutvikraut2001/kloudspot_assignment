@@ -7,6 +7,34 @@ import { api, getZonedDayRangeUtcMillis, EntryExitRecord } from "@/lib/api";
 
 const PAGE_SIZE = 10;
 
+// Avatar collections for variety
+const maleAvatars = [
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1463453091185-61582044d556?w=40&h=40&fit=crop&crop=face",
+];
+
+const femaleAvatars = [
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=40&h=40&fit=crop&crop=face",
+];
+
+// Get avatar based on gender with variety using name as seed
+const getDefaultAvatar = (gender?: string, name?: string): string => {
+  const avatars = gender === "Female" ? femaleAvatars : maleAvatars;
+  // Use name to generate consistent index for same person
+  const seed = name ? name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) : 0;
+  const index = seed % avatars.length;
+  return avatars[index];
+};
+
 export default function CrowdEntriesPage() {
   const { selectedSite, getSelectedSiteId, getSelectedSiteTimezone } = useAuth();
 
@@ -30,34 +58,6 @@ export default function CrowdEntriesPage() {
 
   // Error state
   const [error, setError] = useState<string | null>(null);
-
-  // Avatar collections for variety
-  const maleAvatars = [
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1463453091185-61582044d556?w=40&h=40&fit=crop&crop=face",
-  ];
-
-  const femaleAvatars = [
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=40&h=40&fit=crop&crop=face",
-  ];
-
-  // Get avatar based on gender with variety using name as seed
-  const getDefaultAvatar = (gender?: string, name?: string): string => {
-    const avatars = gender === "Female" ? femaleAvatars : maleAvatars;
-    // Use name to generate consistent index for same person
-    const seed = name ? name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) : 0;
-    const index = seed % avatars.length;
-    return avatars[index];
-  };
 
   const formatDisplayDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -219,13 +219,13 @@ export default function CrowdEntriesPage() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-4">
+    <div className="h-full flex flex-col gap-3 sm:gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-semibold text-gray-800">Overview</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Overview</h2>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Refresh Button */}
           <button
             onClick={() => fetchEntries(currentPage, true)}
@@ -240,7 +240,7 @@ export default function CrowdEntriesPage() {
           <div className="relative">
             <button
               onClick={() => dateInputRef.current?.showPicker()}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 bg-white min-w-[120px]"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border border-gray-300 rounded-md text-xs sm:text-sm text-gray-600 hover:bg-gray-50 bg-white"
             >
               <Calendar size={16} />
               {formatDisplayDate(selectedDate)}
@@ -278,22 +278,22 @@ export default function CrowdEntriesPage() {
           </div>
         )}
         <div className="flex-1 overflow-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[500px]">
             <thead className="sticky top-0 bg-gray-50">
               <tr className="border-b border-gray-200">
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">
+                <th className="text-left py-3 sm:py-4 px-3 sm:px-6 text-xs sm:text-sm font-semibold text-gray-700">
                   Name
                 </th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">
+                <th className="text-left py-3 sm:py-4 px-3 sm:px-6 text-xs sm:text-sm font-semibold text-gray-700">
                   Sex
                 </th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">
+                <th className="text-left py-3 sm:py-4 px-3 sm:px-6 text-xs sm:text-sm font-semibold text-gray-700">
                   Entry
                 </th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">
+                <th className="text-left py-3 sm:py-4 px-3 sm:px-6 text-xs sm:text-sm font-semibold text-gray-700">
                   Exit
                 </th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">
+                <th className="text-left py-3 sm:py-4 px-3 sm:px-6 text-xs sm:text-sm font-semibold text-gray-700">
                   Dwell Time
                 </th>
               </tr>
@@ -311,9 +311,9 @@ export default function CrowdEntriesPage() {
                     key={entry.id}
                     className="border-b border-gray-100 hover:bg-gray-50"
                   >
-                    <td className="py-3.5 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-200 shrink-0">
+                    <td className="py-2.5 sm:py-3.5 px-3 sm:px-6">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full overflow-hidden bg-gray-200 shrink-0">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={entry.avatar}
@@ -325,19 +325,19 @@ export default function CrowdEntriesPage() {
                             }}
                           />
                         </div>
-                        <span className="text-sm text-gray-700">{entry.name}</span>
+                        <span className="text-xs sm:text-sm text-gray-700 truncate max-w-[100px] sm:max-w-none">{entry.name}</span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-6 text-sm text-gray-600">
+                    <td className="py-2.5 sm:py-3.5 px-3 sm:px-6 text-xs sm:text-sm text-gray-600">
                       {entry.sex}
                     </td>
-                    <td className="py-3.5 px-6 text-sm text-gray-600">
+                    <td className="py-2.5 sm:py-3.5 px-3 sm:px-6 text-xs sm:text-sm text-gray-600">
                       {formatTimeDisplay(entry.entry)}
                     </td>
-                    <td className="py-3.5 px-6 text-sm text-gray-600">
+                    <td className="py-2.5 sm:py-3.5 px-3 sm:px-6 text-xs sm:text-sm text-gray-600">
                       {formatTimeDisplay(entry.exit)}
                     </td>
-                    <td className="py-3.5 px-6 text-sm text-gray-600">
+                    <td className="py-2.5 sm:py-3.5 px-3 sm:px-6 text-xs sm:text-sm text-gray-600">
                       {entry.dwellTime || "--"}
                     </td>
                   </tr>

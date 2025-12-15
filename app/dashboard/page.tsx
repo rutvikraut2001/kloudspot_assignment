@@ -378,11 +378,11 @@ export default function DashboardPage() {
       {/* Occupancy Section */}
       <div className="flex-shrink-0">
         <h3 className="text-base font-semibold text-gray-800 mb-2">Occupancy</h3>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           {/* Live Occupancy */}
           <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-            <p className="text-sm font-medium text-gray-500 mb-1">Live Occupancy</p>
-            <p className="text-2xl font-semibold text-gray-800">{liveOccupancy.toLocaleString()}</p>
+            <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Live Occupancy</p>
+            <p className="text-xl sm:text-2xl font-semibold text-gray-800">{liveOccupancy.toLocaleString()}</p>
             <div className="flex flex-col mt-1">
               <svg
                 className={`w-4 h-4 ${occupancyChange >= 0 ? "text-teal-500" : "text-red-400"}`}
@@ -408,8 +408,8 @@ export default function DashboardPage() {
 
           {/* Today's Footfall */}
           <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-            <p className="text-sm font-medium text-gray-500 mb-1">Today&apos;s Footfall</p>
-            <p className="text-2xl font-semibold text-gray-800">{totalFootfall.toLocaleString()}</p>
+            <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Today&apos;s Footfall</p>
+            <p className="text-xl sm:text-2xl font-semibold text-gray-800">{totalFootfall.toLocaleString()}</p>
             <div className="flex flex-col mt-1">
               <svg
                 className={`w-4 h-4 ${footfallChange >= 0 ? "text-teal-500" : "text-red-400"}`}
@@ -435,8 +435,8 @@ export default function DashboardPage() {
 
           {/* Avg Dwell Time */}
           <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-            <p className="text-sm font-medium text-gray-500 mb-1">Avg Dwell Time</p>
-            <p className="text-2xl font-semibold text-gray-800">{avgDwellTime}</p>
+            <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Avg Dwell Time</p>
+            <p className="text-xl sm:text-2xl font-semibold text-gray-800">{avgDwellTime}</p>
             <div className="flex flex-col mt-1">
               <svg
                 className={`w-4 h-4 ${dwellChange >= 0 ? "text-teal-500" : "text-red-400"}`}
@@ -530,9 +530,9 @@ export default function DashboardPage() {
       {/* Demographics Section */}
       <div className="flex-1 min-h-0 flex flex-col">
         <h3 className="text-base font-semibold text-gray-800 mb-2 flex-shrink-0">Demographics</h3>
-        <div className="flex gap-4 flex-1 min-h-0">
-          {/* Pie Chart - 30% */}
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 w-[30%] flex flex-col">
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 flex-1 min-h-0">
+          {/* Pie Chart */}
+          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 w-full lg:w-[30%] flex flex-col min-h-[200px] lg:min-h-0">
             <h4 className="text-base font-semibold text-gray-800 mb-2 flex-shrink-0">
               Chart of Demographics
             </h4>
@@ -574,8 +574,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Demographics Line Chart - 70% */}
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 w-[70%] flex flex-col">
+          {/* Demographics Line Chart */}
+          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 w-full lg:w-[70%] flex flex-col min-h-[250px] lg:min-h-0">
             <div className="flex items-center justify-between mb-2 flex-shrink-0">
               <h4 className="text-base font-semibold text-gray-800">Demographics Analysis</h4>
               <div className="flex items-center gap-3">

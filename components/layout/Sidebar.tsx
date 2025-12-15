@@ -23,9 +23,10 @@ const menuItems = [
 interface SidebarProps {
   collapsed?: boolean;
   onToggle?: () => void;
+  onMobileClose?: () => void;
 }
 
-export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed = false, onToggle, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const { logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
@@ -122,6 +123,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
             <Link
               key={item.name}
               href={item.href}
+              onClick={() => onMobileClose?.()}
               className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-300 mb-1 ${
                 isActive
                   ? 'bg-gray-500/40 text-white'

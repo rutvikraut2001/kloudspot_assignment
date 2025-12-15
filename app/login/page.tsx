@@ -75,10 +75,10 @@ export default function LoginPage() {
       />
 
       {/* Content Container */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-8 flex items-center justify-between">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-8 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-8 lg:gap-4 py-8">
         {/* Left Side - Welcome Text */}
-        <div className="text-white max-w-lg">
-          <h1 className="text-4xl font-medium leading-tight">
+        <div className="text-white max-w-lg text-center lg:text-left">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-medium leading-tight">
             Welcome to the
             <br />
             Crowd Management System
@@ -86,7 +86,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right Side - Login Form */}
-        <div className="bg-white rounded-lg shadow-2xl overflow-hidden w-[374px]">
+        <div className="bg-white rounded-lg shadow-2xl overflow-hidden w-full max-w-[374px]">
           {/* Teal Header with Logo - height: 110px */}
           <div
             className="h-[110px] flex items-center justify-center"
@@ -104,7 +104,7 @@ export default function LoginPage() {
           </div>
 
           {/* Form */}
-          <div className="px-8 py-8">
+          <div className="px-5 sm:px-8 py-6 sm:py-8">
             <form onSubmit={handleLogin}>
               {/* Error Message */}
               {error && (
