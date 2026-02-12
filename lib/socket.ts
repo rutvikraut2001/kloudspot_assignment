@@ -1,6 +1,4 @@
-import { io, Socket } from "socket.io-client";
-
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://hiring-dev.internal.kloudspot.com";
+import { generateRandomAlert, generateRandomOccupancy } from "./static-data";
 
 export interface AlertEvent {
   action: "entry" | "exit";
@@ -25,71 +23,52 @@ type AlertCallback = (data: AlertEvent) => void;
 type LiveOccupancyCallback = (data: LiveOccupancyEvent) => void;
 
 class SocketService {
-  private socket: Socket | null = null;
   private alertCallbacks: Set<AlertCallback> = new Set();
   private liveOccupancyCallbacks: Set<LiveOccupancyCallback> = new Set();
-  private isConnecting = false;
+  private alertInterval: ReturnType<typeof setInterval> | null = null;
+  private occupancyInterval: ReturnType<typeof setInterval> | null = null;
+  private connected = false;
 
   /**
-   * Connect to the Socket.IO server
+   * Start simulated socket events
    */
   connect(): void {
-    if (this.socket?.connected || this.isConnecting) {
-      return;
-    }
+    if (this.connected) return;
+    this.connected = true;
 
-    this.isConnecting = true;
+    // Simulate alert events every 8-15 seconds
+    this.alertInterval = setInterval(() => {
+      const alert = generateRandomAlert("site-001", "KloudSpot HQ - Main Building");
+      this.alertCallbacks.forEach((cb) => cb(alert as AlertEvent));
+    }, 8000 + Math.random() * 7000);
 
-    try {
-      this.socket = io(SOCKET_URL, {
-        transports: ["websocket"],
-        autoConnect: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-      });
-
-      this.socket.on("connect", () => {
-        this.isConnecting = false;
-      });
-
-      this.socket.on("disconnect", () => {
-        // Disconnected from server
-      });
-
-      this.socket.on("connect_error", () => {
-        this.isConnecting = false;
-      });
-
-      // Listen for alert events
-      this.socket.on("alert", (data: AlertEvent) => {
-        this.alertCallbacks.forEach((callback) => callback(data));
-      });
-
-      // Listen for live occupancy events
-      this.socket.on("live_occupancy", (data: LiveOccupancyEvent) => {
-        this.liveOccupancyCallbacks.forEach((callback) => callback(data));
-      });
-    } catch {
-      this.isConnecting = false;
-    }
+    // Simulate live occupancy updates every 5 seconds
+    this.occupancyInterval = setInterval(() => {
+      const occupancy = generateRandomOccupancy("site-001", 142);
+      this.liveOccupancyCallbacks.forEach((cb) => cb(occupancy as LiveOccupancyEvent));
+    }, 5000);
   }
 
   /**
-   * Disconnect from the Socket.IO server
+   * Stop simulated events
    */
   disconnect(): void {
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
+    if (this.alertInterval) {
+      clearInterval(this.alertInterval);
+      this.alertInterval = null;
     }
+    if (this.occupancyInterval) {
+      clearInterval(this.occupancyInterval);
+      this.occupancyInterval = null;
+    }
+    this.connected = false;
   }
 
   /**
    * Check if connected
    */
   isConnected(): boolean {
-    return this.socket?.connected ?? false;
+    return this.connected;
   }
 
   /**

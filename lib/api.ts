@@ -1,4 +1,13 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://hiring-dev.internal.kloudspot.com";
+import {
+  STATIC_USER,
+  STATIC_LOGIN_RESPONSE,
+  STATIC_SITES,
+  STATIC_OCCUPANCY,
+  STATIC_FOOTFALL,
+  STATIC_DWELL,
+  STATIC_DEMOGRAPHICS,
+  getStaticEntryExitPage,
+} from "./static-data";
 
 // ============ Types ============
 
@@ -124,113 +133,61 @@ const HTTP_ERROR_MESSAGES: Record<number, string> = {
   504: "Request timed out. Please try again.",
 };
 
-// ============ API Client ============
+// ============ API Client (Static Data Mode) ============
 
 class ApiClient {
-  private getToken(): string | null {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("auth_token");
-    }
-    return null;
+  // Simulate small network delay for realistic UX
+  private delay(ms = 300): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const token = this.getToken();
-
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    };
-
-    let response: Response;
-    try {
-      response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers,
-      });
-    } catch {
-      // Network error (no internet, DNS failure, CORS, etc.)
-      throw new Error("Unable to connect to server. Please check your internet connection.");
-    }
-
-    const text = await response.text();
-    let data: T;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      // Non-JSON response
-      if (!response.ok) {
-        throw new Error(HTTP_ERROR_MESSAGES[response.status] || `Server error (${response.status})`);
-      }
-      throw new Error("Received invalid response from server.");
-    }
-
-    if (!response.ok) {
-      const error = data as unknown as ApiError;
-      // Check all possible error message fields from API
-      const apiMessage = error.errorMessage || error.message || error.error;
-
-      if (apiMessage) {
-        throw new Error(apiMessage);
-      }
-
-      // Fall back to user-friendly HTTP status message
-      throw new Error(HTTP_ERROR_MESSAGES[response.status] || `Request failed (${response.status})`);
-    }
-
-    return data;
-  }
-
-  // Auth
+  // Auth - only accepts test@test.com / test@123
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    return this.request<LoginResponse>("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify(credentials),
-    });
+    await this.delay(500);
+
+    if (
+      credentials.email === STATIC_USER.email &&
+      credentials.password === STATIC_USER.password
+    ) {
+      return STATIC_LOGIN_RESPONSE;
+    }
+
+    throw new Error("Invalid email or password.");
   }
 
   // Sites
   async getSites(): Promise<Site[]> {
-    const response = await this.request<Site[] | { data: Site[] }>("/api/sites");
-    return Array.isArray(response) ? response : response.data || [];
+    await this.delay();
+    return STATIC_SITES as Site[];
   }
 
   // Analytics
-  async getOccupancy(params: AnalyticsRequest): Promise<OccupancyData> {
-    return this.request<OccupancyData>("/api/analytics/occupancy", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
+  async getOccupancy(_params: AnalyticsRequest): Promise<OccupancyData> {
+    await this.delay(400);
+    return STATIC_OCCUPANCY as unknown as OccupancyData;
   }
 
-  async getFootfall(params: AnalyticsRequest): Promise<FootfallData> {
-    return this.request<FootfallData>("/api/analytics/footfall", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
+  async getFootfall(_params: AnalyticsRequest): Promise<FootfallData> {
+    await this.delay(250);
+    return STATIC_FOOTFALL as unknown as FootfallData;
   }
 
-  async getDwell(params: AnalyticsRequest): Promise<DwellData> {
-    return this.request<DwellData>("/api/analytics/dwell", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
+  async getDwell(_params: AnalyticsRequest): Promise<DwellData> {
+    await this.delay(350);
+    return STATIC_DWELL as unknown as DwellData;
   }
 
-  async getDemographics(params: AnalyticsRequest): Promise<DemographicsData> {
-    return this.request<DemographicsData>("/api/analytics/demographics", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
+  async getDemographics(_params: AnalyticsRequest): Promise<DemographicsData> {
+    await this.delay(450);
+    return STATIC_DEMOGRAPHICS as unknown as DemographicsData;
   }
 
   async getEntryExit(params: EntryExitRequest): Promise<EntryExitResponse> {
-    return this.request<EntryExitResponse>("/api/analytics/entry-exit", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
+    await this.delay(400);
+    return getStaticEntryExitPage(
+      params.pageNumber,
+      params.pageSize
+    ) as unknown as EntryExitResponse;
   }
 }
 
